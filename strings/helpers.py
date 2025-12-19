@@ -235,7 +235,7 @@ HELP_16 = """🛠️ ʜєʟᴘ sєᴄᴛɪση :
 
 HELP_17 = """✦ ʙʀσᴧᴅᴄᴧsᴛ ɪηғσ :
 
-✦ ᴄσηᴛᴧᴄᴛ ➥ [ɪηғɪηɪᴛʏ](https://t.me/Buyer_infinity)
+✦ ᴄσηᴛᴧᴄᴛ ➥ [ɪηғɪηɪᴛʏ](https://t.me/Docker_Git_Bit)
 ✦ ʙυʏ ʙʀσᴧᴅᴄᴧsᴛ sєʀᴠɪᴄє
 
 ✦ /gcast
