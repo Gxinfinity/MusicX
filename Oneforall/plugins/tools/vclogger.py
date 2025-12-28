@@ -1,11 +1,12 @@
 from pyrogram import filters
-from Oneforall import app
+from Oneforall import userbot
 
 VC_LOGGER = set()
 
 
-@app.on_message(filters.command("vclogger") & filters.group)
-async def vclogger_handler(_, message):
+# COMMAND — bot se reply
+@userbot.one.on_message(filters.command("vclogger") & filters.group)
+async def vclogger_cmd(client, message):
     if len(message.command) < 2:
         return await message.reply_text(
             "Usage:\n/vclogger on\n/vclogger off"
@@ -22,23 +23,13 @@ async def vclogger_handler(_, message):
         await message.reply_text("❌ VC Logger Disabled")
 
 
-# 🔥 VC START
-@app.on_message(filters.video_chat_started & filters.group)
-async def vc_started(_, message):
+# 🔥 REAL VC INVITE LOGGER
+@userbot.one.on_message(filters.video_chat_members_invited & filters.group)
+async def vc_invite(client, message):
     if message.chat.id not in VC_LOGGER:
         return
 
-    await message.reply_text("🎧 **Video Chat Started**")
-
-
-# 🔥 VC INVITE (THIS IS WHAT YOU WANT)
-@app.on_message(filters.video_chat_members_invited & filters.group)
-async def vc_invite(_, message):
-    if message.chat.id not in VC_LOGGER:
-        return
-
-    invited = message.video_chat_members_invited.users
-    for user in invited:
+    for user in message.video_chat_members_invited.users:
         await message.reply_text(
             f"""🤖 **ROOHI VC LOGGER**
 
