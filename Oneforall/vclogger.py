@@ -3,7 +3,8 @@ from Oneforall import userbot, app
 
 VC_LOGGER = set()
 
-@userbot.on_raw_update()
+# 🔥 IMPORTANT: use userbot.app (REAL pyrogram client)
+@userbot.app.on_raw_update()
 async def vc_join_listener(client, update, users, chats):
     if not isinstance(update, UpdateGroupCallParticipants):
         return
