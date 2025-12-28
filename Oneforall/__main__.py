@@ -47,6 +47,8 @@ async def init():
     LOGGER("Oneforall.plugins").info("Successfully Imported Modules...")
 
     await userbot.start()
+from Oneforall.vc_listener import attach
+attach()
     await Hotty.start()
 
     try:
