@@ -35,8 +35,10 @@ async def init():
     except:
         pass
 
+    # 🔹 Start BOT
     await app.start()
 
+    # 🔹 Load plugins
     for module in ALL_MODULES:
         try:
             module_name = module.lstrip('.')
@@ -46,13 +48,20 @@ async def init():
 
     LOGGER("Oneforall.plugins").info("Successfully Imported Modules...")
 
+    # 🔹 Start ASSISTANTS
     await userbot.start()
-from Oneforall.vc_listener import attach
-attach()
+
+    # 🔥 ATTACH VC LISTENER (THIS WAS MISSING / BROKEN)
+    from Oneforall.vc_listener import attach
+    attach()
+
+    # 🔹 Start VC player
     await Hotty.start()
 
     try:
-        await Hotty.stream_call("https://graph.org/file/e999c40cb700e7c684b75.mp4")
+        await Hotty.stream_call(
+            "https://graph.org/file/e999c40cb700e7c684b75.mp4"
+        )
     except NoActiveGroupCall:
         LOGGER("Oneforall").error(
             "Please turn on the videochat of your log group/channel.\n\nStopping Bot..."
@@ -64,14 +73,10 @@ attach()
     await Hotty.decorators()
 
     LOGGER("Oneforall").info(
-        "ᴅʀᴏᴘ ʏᴏᴜʀ ɢɪʀʟꜰʀɪᴇɴᴅ'ꜱ ɴᴜᴍʙᴇʀ ᴀᴛ ᴊᴏɪɴ https://t.me/PiratesMainchat ꜰᴏʀ ᴀɴʏ ɪꜱꜱᴜᴇꜱ"
+        "Bot started successfully."
     )
 
     await idle()
     await app.stop()
     await userbot.stop()
     LOGGER("Oneforall").info("Stopping One for all Bot...")
-
-
-if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(init())
