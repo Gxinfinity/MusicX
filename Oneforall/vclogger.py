@@ -3,9 +3,8 @@ from Oneforall import userbot, app
 
 VC_LOGGER = set()
 
-# 🔥 IMPORTANT: use userbot.app (REAL pyrogram client)
-@userbot.app.on_raw_update()
-async def vc_join_listener(client, update, users, chats):
+
+async def _vc_handler(client, update, users, chats):
     if not isinstance(update, UpdateGroupCallParticipants):
         return
 
@@ -27,3 +26,30 @@ async def vc_join_listener(client, update, users, chats):
 🔗 **Username** : @{user.username if user.username else 'Ignored'}
 """
             )
+
+
+# 🔥 Attach listener to ALL assistant clients
+if hasattr(userbot, "one"):
+    userbot.one.add_handler(
+        type("Raw", (), {"callback": _vc_handler})()
+    )
+
+if hasattr(userbot, "two"):
+    userbot.two.add_handler(
+        type("Raw", (), {"callback": _vc_handler})()
+    )
+
+if hasattr(userbot, "three"):
+    userbot.three.add_handler(
+        type("Raw", (), {"callback": _vc_handler})()
+    )
+
+if hasattr(userbot, "four"):
+    userbot.four.add_handler(
+        type("Raw", (), {"callback": _vc_handler})()
+    )
+
+if hasattr(userbot, "five"):
+    userbot.five.add_handler(
+        type("Raw", (), {"callback": _vc_handler})()
+    )
