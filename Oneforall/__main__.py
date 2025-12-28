@@ -51,10 +51,7 @@ async def init():
     # 🔹 Start assistants
     await userbot.start()
 
-    # 🔥 Attach VC raw listener (YAHI PE)
-    from Oneforall.vc_listener import attach
-    attach()
-
+    
     # 🔹 Start VC player
     await Hotty.start()
 
