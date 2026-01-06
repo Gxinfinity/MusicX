@@ -7,9 +7,9 @@ from pyrogram import filters
 from pyrogram.types import Message
 from pyrogram.raw import functions
 
-from Tune import app
-from Tune.utils.database import get_assistant
-from Tune.core.mongo import mongodb
+from Oneforall import app
+from Oneforall.utils.database import get_assistant
+from Oneforall.core.mongo import mongodb
 
 LOGGER = getLogger(__name__)
 
