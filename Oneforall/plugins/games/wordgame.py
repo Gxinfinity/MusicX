@@ -1,19 +1,28 @@
-print("🔥 WORDGAME PLUGIN LOADED 🔥")
 from Oneforall import app
 from pyrogram import filters
 import asyncio
 import random
 import os
 
+print("🔥 WORDGAME PLUGIN LOADED 🔥")
+
 # ======================
-# WORD LIST
+# WORD LIST (SAFE PATH)
 # ======================
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+# wordgame.py = Oneforall/plugins/games/wordgame.py
+# words.txt   = Oneforall/Oneforall/words.txt
+
+BASE_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..")
+)
 FILE_PATH = os.path.join(BASE_DIR, "words.txt")
 
-with open(FILE_PATH, "r") as f:
-    WORDS = set(w.strip().lower() for w in f)
+if not os.path.exists(FILE_PATH):
+    raise FileNotFoundError(f"words.txt not found at {FILE_PATH}")
+
+with open(FILE_PATH, "r", encoding="utf-8", errors="ignore") as f:
+    WORDS = set(w.strip().lower() for w in f if w.strip())
 
 # ======================
 # GAME STATE
@@ -211,9 +220,6 @@ async def game_turn(_, message):
 
     game["last_letter"] = word[-1]
     game["total_words"] += 1
-
-    if len(word) > len(game["longest_word"]):
-        game["longest_word"] = word
 
     await message.reply(f"✔ `{word}` accepted!")
 
