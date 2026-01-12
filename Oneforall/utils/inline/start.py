@@ -36,11 +36,6 @@ def private_panel(_):
             )
         ],
         [
-            # ❌ user_id REMOVED — this was crashing your bot
-            InlineKeyboardButton(
-                text=_["S_B_5"],
-                url=f"https://t.me/{config.OWNER_USERNAME}"
-            ),
             InlineKeyboardButton(
                 "🎮 Games",
                 callback_data="games_menu"
