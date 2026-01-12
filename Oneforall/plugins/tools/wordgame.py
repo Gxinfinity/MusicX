@@ -1,4 +1,4 @@
-from Tune import app
+from Oneforall import app
 from pyrogram import filters
 import asyncio
 import random
