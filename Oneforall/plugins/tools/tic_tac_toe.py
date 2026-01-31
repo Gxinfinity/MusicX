@@ -1,22 +1,14 @@
-import asyncio
-from time import time
 from pyrogram import filters
-from pyrogram.types import (
-    InlineKeyboardMarkup,
-    InlineKeyboardButton,
-    CallbackQuery,
-    Message
-)
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from Oneforall import app
 from Oneforall.core.mongo import mongodb
 
 games = {}
-xoxo_db = mongodb.xoxo_leaderboard
+db = mongodb.xoxo_leaderboard
 
 EMPTY = "⬜"
 X = "❌"
 O = "⭕"
-TIMEOUT = 60  # seconds
 
 WIN = [
     [0,1,2],[3,4,5],[6,7,8],
@@ -33,27 +25,7 @@ def check(board):
         return "draw"
     return None
 
-def smart_bot(board):
-    for i in range(9):
-        if board[i] == EMPTY:
-            board[i] = O
-            if check(board) == O:
-                return i
-            board[i] = EMPTY
-    for i in range(9):
-        if board[i] == EMPTY:
-            board[i] = X
-            if check(board) == X:
-                board[i] = EMPTY
-                return i
-            board[i] = EMPTY
-    if board[4] == EMPTY:
-        return 4
-    for i in range(9):
-        if board[i] == EMPTY:
-            return i
-
-def kb(gid, board):
+def board_kb(gid, board):
     rows = []
     for i in range(0,9,3):
         rows.append([
@@ -63,63 +35,72 @@ def kb(gid, board):
         ])
     rows.append([
         InlineKeyboardButton("🔁 Rematch", callback_data=f"xoxo_rematch:{gid}"),
-        InlineKeyboardButton("🛑 End", callback_data=f"xoxo_end:{gid}")
+        InlineKeyboardButton("🛑 End Game", callback_data=f"xoxo_end:{gid}")
     ])
     return InlineKeyboardMarkup(rows)
 
+async def get_name(uid):
+    if uid == 0:
+        return "🤖 <b>Bot</b>"
+    user = await app.get_users(uid)
+    return user.mention
+
 async def add_win(uid):
-    await xoxo_db.update_one(
+    if uid == 0:
+        return
+    await db.update_one(
         {"user_id": uid},
         {"$inc": {"wins": 1}},
         upsert=True
     )
 
-# ───── /xoxo ─────
+# ───── /game MENU ─────
+
+@app.on_message(filters.command("game"))
+async def game_menu(_, m):
+    kb = InlineKeyboardMarkup([
+        [InlineKeyboardButton("❌⭕ Tic Tac Toe", callback_data="game_xoxo")]
+    ])
+    await m.reply(
+        "🎮 <b>Game Center</b>\n\nChoose a game:",
+        reply_markup=kb
+    )
+
+@app.on_callback_query(filters.regex("^game_xoxo$"))
+async def game_xoxo(_, q: CallbackQuery):
+    fake = type("obj", (), {"chat": q.message.chat, "from_user": q.from_user})
+    await start_xoxo(_, fake)
+
+# ───── /xoxo START ─────
 
 @app.on_message(filters.command("xoxo"))
-async def start(_, m: Message):
+async def start_xoxo(_, m):
     gid = m.chat.id
-    uid = m.from_user.id
+
+    if gid in games:
+        return await m.reply("⚠️ <b>A game is already running!</b>\nUse 🛑 End Game.")
 
     games[gid] = {
         "board": [EMPTY]*9,
-        "p1": uid,
+        "p1": m.from_user.id,
         "p2": None,
         "turn": X,
-        "mode": "friend",
-        "last": time()
+        "mode": "friend"
     }
 
-    kb_start = InlineKeyboardMarkup([
-        [InlineKeyboardButton("Join Game 🎮", callback_data=f"xoxo_join:{gid}")],
-        [InlineKeyboardButton("Play vs Bot 🤖", callback_data=f"xoxo_bot:{gid}")]
+    kb = InlineKeyboardMarkup([
+        [InlineKeyboardButton("👥 Join Game", callback_data=f"xoxo_join:{gid}")],
+        [InlineKeyboardButton("🤖 Play vs Bot", callback_data=f"xoxo_bot:{gid}")]
     ])
 
     await m.reply(
-        f"❌ **Tic-Tac-Toe Challenge! ⭕**\n\n"
-        f"👤 Player 1: {m.from_user.mention}\n\n"
+        f"❌⭕ <b>Tic Tac Toe</b>\n\n"
+        f"👤 <b>Player 1:</b> {m.from_user.mention}\n\n"
         f"Choose mode:",
-        reply_markup=kb_start
+        reply_markup=kb
     )
 
-    asyncio.create_task(timeout_checker(gid))
-
-# ───── TIMEOUT ─────
-
-async def timeout_checker(gid):
-    while gid in games:
-        await asyncio.sleep(5)
-        g = games.get(gid)
-        if time() - g["last"] > TIMEOUT:
-            winner = g["p2"] if g["turn"] == X else g["p1"]
-            games.pop(gid, None)
-            await app.send_message(
-                gid,
-                f"⏱ **Timeout!**\nWinner: <a href='tg://user?id={winner}'>Player</a>"
-            )
-            await add_win(winner)
-
-# ───── JOIN ─────
+# ───── JOIN FRIEND ─────
 
 @app.on_callback_query(filters.regex("^xoxo_join"))
 async def join(_, q: CallbackQuery):
@@ -133,14 +114,16 @@ async def join(_, q: CallbackQuery):
         return await q.answer("You are Player 1")
 
     g["p2"] = q.from_user.id
-    g["last"] = time()
+
+    p1 = await get_name(g["p1"])
+    p2 = await get_name(g["p2"])
 
     await q.message.edit_text(
-        f"🎮 **Game Started!**\n\n"
-        f"❌ Player 1\n"
-        f"⭕ Player 2\n\n"
-        f"**Turn:** ❌",
-        reply_markup=kb(gid, g["board"])
+        f"🎮 <b>Game Started!</b>\n\n"
+        f"❌ {p1}\n"
+        f"⭕ {p2}\n\n"
+        f"🔄 <b>Turn:</b> ❌",
+        reply_markup=board_kb(gid, g["board"])
     )
 
 # ───── BOT MODE ─────
@@ -149,15 +132,18 @@ async def join(_, q: CallbackQuery):
 async def bot(_, q: CallbackQuery):
     gid = int(q.data.split(":")[1])
     g = games[gid]
+
     g["p2"] = 0
     g["mode"] = "bot"
-    g["last"] = time()
+
+    p1 = await get_name(g["p1"])
 
     await q.message.edit_text(
-        f"🤖 **Bot Mode Started**\n\n"
-        f"❌ You | ⭕ Bot\n\n"
-        f"Your Turn:",
-        reply_markup=kb(gid, g["board"])
+        f"🤖 <b>Bot Mode</b>\n\n"
+        f"❌ {p1}\n"
+        f"⭕ 🤖 <b>Bot</b>\n\n"
+        f"🔄 <b>Your Turn:</b> ❌",
+        reply_markup=board_kb(gid, g["board"])
     )
 
 # ───── MOVE ─────
@@ -166,14 +152,12 @@ async def bot(_, q: CallbackQuery):
 async def move(_, q: CallbackQuery):
     _, gid, pos = q.data.split(":")
     gid, pos = int(gid), int(pos)
-
     g = games.get(gid)
-    if not g:
+
+    if not g or g["board"][pos] != EMPTY:
         return
 
     uid = q.from_user.id
-    if g["board"][pos] != EMPTY:
-        return await q.answer("Used")
 
     if g["turn"] == X and uid != g["p1"]:
         return await q.answer("Not your turn")
@@ -181,64 +165,63 @@ async def move(_, q: CallbackQuery):
         return await q.answer("Not your turn")
 
     g["board"][pos] = g["turn"]
-    g["last"] = time()
-
     res = check(g["board"])
+
+    p1 = await get_name(g["p1"])
+    p2 = await get_name(g["p2"])
+
     if res:
-        return await finish(q, gid, res)
-
-    g["turn"] = O
-
-    if g["mode"] == "bot":
-        bp = smart_bot(g["board"])
-        g["board"][bp] = O
-        res = check(g["board"])
-        if res:
-            return await finish(q, gid, res)
-        g["turn"] = X
-    else:
-        g["turn"] = X
-
-    await q.message.edit_text(
-        f"❌ Player 1 | ⭕ {'Bot' if g['mode']=='bot' else 'Player 2'}\n\n"
-        f"**Turn:** {g['turn']}",
-        reply_markup=kb(gid, g["board"])
-    )
-
-# ───── FINISH ─────
-
-async def finish(q, gid, res):
-    g = games.pop(gid)
-    if res != "draw":
         winner = g["p1"] if res == X else g["p2"]
         await add_win(winner)
-        text = f"🏆 **Winner: {res}**"
-    else:
-        text = "🤝 **Draw Match**"
+        games.pop(gid)
 
-    await q.message.edit_text(text, reply_markup=kb(gid, g["board"]))
+        return await q.message.edit_text(
+            f"🏆 <b>Winner!</b>\n\n"
+            f"{p1} vs {p2}\n\n"
+            f"🎉 <b>{res} wins the match!</b>",
+            reply_markup=board_kb(gid, g["board"])
+        )
+
+    g["turn"] = O if g["turn"] == X else X
+
+    await q.message.edit_text(
+        f"❌ {p1}\n⭕ {p2}\n\n"
+        f"🔄 <b>Turn:</b> {g['turn']}",
+        reply_markup=board_kb(gid, g["board"])
+    )
 
 # ───── REMATCH ─────
 
 @app.on_callback_query(filters.regex("^xoxo_rematch"))
-async def rematch(_, q):
+async def rematch(_, q: CallbackQuery):
     gid = int(q.data.split(":")[1])
     if gid not in games:
         return
 
     games[gid]["board"] = [EMPTY]*9
     games[gid]["turn"] = X
-    games[gid]["last"] = time()
 
     await q.message.edit_text(
-        "🔁 **Rematch Started**\n❌ Turn",
-        reply_markup=kb(gid, games[gid]["board"])
+        "🔁 <b>Rematch Started!</b>\n\n🔄 Turn: ❌",
+        reply_markup=board_kb(gid, games[gid]["board"])
     )
 
-# ───── END ─────
+# ───── END GAME ─────
 
 @app.on_callback_query(filters.regex("^xoxo_end"))
-async def end(_, q):
+async def end(_, q: CallbackQuery):
     gid = int(q.data.split(":")[1])
     games.pop(gid, None)
-    await q.message.edit_text("🛑 **Game Ended**")
+    await q.message.edit_text("🛑 <b>Game Ended</b>")
+
+# ───── LEADERBOARD ─────
+
+@app.on_message(filters.command("xoxotop"))
+async def top(_, m):
+    text = "🏆 <b>XOXO Leaderboard</b>\n\n"
+    i = 1
+    async for u in db.find().sort("wins", -1).limit(10):
+        user = await app.get_users(u["user_id"])
+        text += f"{i}. {user.mention} — {u['wins']} wins\n"
+        i += 1
+    await m.reply(text)
