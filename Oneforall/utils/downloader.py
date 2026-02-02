@@ -1,39 +1,36 @@
 from os import path
 import yt_dlp
 
-# Global YouTubeDL options
-ytdl = yt_dlp.YoutubeDL(
-    {
-        "outtmpl": "downloads/%(id)s.%(ext)s",
-        "format": "bestaudio/best",
-        "geo_bypass": True,
-        "nocheckcertificate": True,
-        "cookiefile": "cookies.txt",
-    }
-)
+# Global yt-dlp options (SAFE)
+ytdl_opts = {
+    "outtmpl": "downloads/%(id)s.%(ext)s",
+    "format": "bestaudio[ext=m4a]/bestaudio/best",
+    "merge_output_format": "mp3",
+    "geo_bypass": True,
+    "nocheckcertificate": True,
+    "quiet": True,
+    "no_warnings": True,
+    "cookiefile": "cookies.txt",
+}
+
+ytdl = yt_dlp.YoutubeDL(ytdl_opts)
 
 
-def download(url: str, my_hook) -> str:
-    ydl_optssx = {
-        "format": "bestaudio/best",
-        "outtmpl": "downloads/%(id)s.%(ext)s",
-        "geo_bypass": True,
-        "nocheckcertificate": True,
-        "quiet": True,
-        "no_warnings": True,
-        "cookiefile": "cookies.txt",
-    }
-
+def download(url: str, my_hook):
     try:
-        info = ytdl.extract_info(url, download=False)
+        with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
+            ydl.add_progress_hook(my_hook)
 
-        x = yt_dlp.YoutubeDL(ydl_optssx)
-        x.add_progress_hook(my_hook)
-        x.download([url])
+            info = ydl.extract_info(url, download=True)
 
-        file_path = path.join("downloads", f"{info['id']}.{info['ext']}")
-        return file_path
+            filename = ydl.prepare_filename(info)
+
+            # ensure mp3 path
+            if not filename.endswith(".mp3"):
+                filename = path.splitext(filename)[0] + ".mp3"
+
+            return filename
 
     except Exception as e:
-        print(f"Download error: {e}")
+        print(f"[yt-dlp ERROR] {e}")
         return None
