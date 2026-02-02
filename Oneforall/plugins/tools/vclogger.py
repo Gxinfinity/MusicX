@@ -15,7 +15,7 @@ LOGGER = getLogger(__name__)
 
 # ───────── CONFIG ─────────
 
-VC_LOG_CHANNEL_ID = -1003634796457   # ✅ PUT YOUR VC LOG CHANNEL ID HERE
+VC_LOG_CHANNEL_ID = -1002869205475   # ✅ PUT YOUR VC LOG CHANNEL ID HERE
 
 prefixes = [".", "!", "/", "@", "?", "'"]
 
