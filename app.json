@@ -3,71 +3,101 @@
     "description": "A Telegram Music Player Bot, written in Python with Pyrogram and Py-Tgcalls.",
     "logo": "https://te.legra.ph/file/62fa7c81c56c1ae31c844.jpg",
     "keywords": [
-    "python3",
-    "telegram",
-    "bot",
-    "Brandrd",
-    "MusicBot",
-    "telegram-bot",
-    "pyrogram"
+        "python3",
+        "telegram",
+        "bot",
+        "Brandrd",
+        "MusicBot",
+        "telegram-bot",
+        "pyrogram"
     ],
     "env": {
-      "API_ID": {
-        "description": "Get this value from https://my.telegram.org",
-        "value": "26950458",
-        "required": true
-      },
-      "API_HASH": {
-        "description": "Get this value from https://my.telegram.org",
-        "value": "d818b8d530e4a9b209509815ab1b9c7c",
-        "required": true
-      },
-      "BOT_TOKEN": {
-        "description": "A Bot's token from Botfather",
-        "value": "",
-        "required": true
-      },
-      "MONGO_DB_URI": {
-        "description": "Get a mongodb url from https://cloud.mongodb.com.",
-        "value": "mongodb+srv://knight4563:knight4563@cluster0.a5br0se.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
-        "required": true
-      },
-      "OWNER_ID": {
-        "description": "The user id of user whom you would like to add as OWNER.",
-        "value": "7487670897",
-        "required": true
-      },
-      "STRING_SESSION": {
-        "description": "A Pyrogram v2 String Session from @BRANDEDSTRINGSESSION_BOT on Telegram.",
-        "value": "",
-        "required": true
-      },
-      "HEROKU_API_KEY": {
-        "description": "Your Heroku account's API key",
-        "value": "",
-        "required": false
-      },
-      "HEROKU_APP_NAME": {
-        "description": "Your heroku app name",
-        "value": "",
-        "required": false
-      },
-      "LOGGER_ID": {
-        "description": "Your Log Group ID, add your bot and promote as an admin with full rights!. Don't Add Channel's ID.",
-        "value": "-1002869205475",
-        "required": true
-      }
+        "API_ID": {
+            "description": "Get this value from https://my.telegram.org",
+            "value": "26950458",
+            "required": true
+        },
+        "API_HASH": {
+            "description": "Get this value from https://my.telegram.org",
+            "value": "d818b8d530e4a9b209509815ab1b9c7c",
+            "required": true
+        },
+        "BOT_TOKEN": {
+            "description": "A Bot's token from Botfather",
+            "value": "",
+            "required": true
+        },
+        "MONGO_DB_URI": {
+            "description": "Get a mongodb url from https://cloud.mongodb.com.",
+            "value": "mongodb+srv://knight4563:knight4563@cluster0.a5br0se.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+            "required": true
+        },
+        "OWNER_ID": {
+            "description": "The user id of user whom you would like to add as OWNER.",
+            "value": "7487670897",
+            "required": true
+        },
+        "STRING_SESSION": {
+            "description": "A Pyrogram v2 String Session from @BRANDEDSTRINGSESSION_BOT on Telegram.",
+            "value": "",
+            "required": true
+        },
+        "HEROKU_API_KEY": {
+            "description": "Your Heroku account's API key",
+            "value": "",
+            "required": false
+        },
+        "HEROKU_APP_NAME": {
+            "description": "Your heroku app name",
+            "value": "",
+            "required": false
+        },
+        "LOGGER_ID": {
+            "description": "Your Log Group ID, add your bot and promote as an admin with full rights!. Don't Add Channel's ID.",
+            "value": "-1002869205475",
+            "required": true
+        },
+        "ASSISTANT_BRIDGE_ID": {
+            "description": "Assistant account user id used as network bridge. Keep empty to use any connected assistant.",
+            "value": "",
+            "required": false
+        },
+        "NETWORK_SUB_BOTS": {
+            "description": "Space separated bot usernames/chat ids that should receive hidden network gban sync command.",
+            "value": "",
+            "required": false
+        },
+        "NETWORK_INTERNAL_GBAN_COMMAND": {
+            "description": "Internal command used for cross-bot gban sync.",
+            "value": "/xgban",
+            "required": false
+        },
+        "ROSE_FEDERATION_CHAT": {
+            "description": "Rose federation chat id/username where assistant should send /fban.",
+            "value": "",
+            "required": false
+        },
+        "ROSE_FBAN_COMMAND": {
+            "description": "Federation ban command for Rose or compatible federation bot.",
+            "value": "/fban",
+            "required": false
+        },
+        "NETWORK_BRIDGE_IDS": {
+            "description": "Space separated assistant user IDs allowed to trigger internal network gban command.",
+            "value": "",
+            "required": false
+        }
     },
     "buildpacks": [
-          {
-              "url": "heroku/python"
-          },
-          {
-              "url": "heroku/nodejs"
-          },
-          {
-              "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
-          }
-      ],
-      "stack": "container"
-  }
+        {
+            "url": "heroku/python"
+        },
+        {
+            "url": "heroku/nodejs"
+        },
+        {
+            "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
+        }
+    ],
+    "stack": "container"
+}
