@@ -86,6 +86,16 @@ STRING3 = os.getenv("STRING_SESSION3", None)
 STRING4 = os.getenv("STRING_SESSION4", None)
 STRING5 = os.getenv("STRING_SESSION5", None)
 
+# Multi-Bot network gban bridge
+ASSISTANT_BRIDGE_ID = int(os.getenv("ASSISTANT_BRIDGE_ID", "0"))
+NETWORK_SUB_BOTS = [bot.strip() for bot in os.getenv("NETWORK_SUB_BOTS", "").split() if bot.strip()]
+NETWORK_BRIDGE_IDS = list(
+    map(int, os.getenv("NETWORK_BRIDGE_IDS", "").split())
+) if os.getenv("NETWORK_BRIDGE_IDS", "").strip() else []
+NETWORK_INTERNAL_GBAN_COMMAND = os.getenv("NETWORK_INTERNAL_GBAN_COMMAND", "/xgban")
+ROSE_FEDERATION_CHAT = os.getenv("ROSE_FEDERATION_CHAT", "")
+ROSE_FBAN_COMMAND = os.getenv("ROSE_FBAN_COMMAND", "/fban")
+
 
 BANNED_USERS = filters.user()
 TEMP_DB_FOLDER = "tempdb"
